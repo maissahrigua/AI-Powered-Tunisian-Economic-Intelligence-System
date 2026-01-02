@@ -7,6 +7,8 @@ import tn.isg.economics.model.*;
 import tn.isg.economics.service.EconomicIntelligenceService;
 import tn.isg.economics.exception.ModelException;
 import tn.isg.economics.exception.PredictionException;
+import tn.isg.economics.util.DataGenerator;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -43,48 +45,7 @@ public class Main {
             System.out.println();
             System.out.println(">>> STEP 3: Creating Sample Tunisian Export Data...");
             System.out.println();
-            List<ExportData> sampleExports = List.of(
-                    new ExportData(
-                            LocalDate.now(),
-                            ProductType.OLIVE_OIL,
-                            3500.0,
-                            100.0,
-                            "France",
-                            MarketIndicator.RISING
-                    ),
-                    new ExportData(
-                            LocalDate.now(),
-                            ProductType.DATES,
-                            2500.0,
-                            50.0,
-                            "Germany",
-                            MarketIndicator.STABLE
-                    ),
-                    new ExportData(
-                            LocalDate.now(),
-                            ProductType.CITRUS_FRUITS,
-                            1800.0,
-                            150.0,
-                            "Italy",
-                            MarketIndicator.VOLATILE
-                    ),
-                    new ExportData(
-                            LocalDate.now(),
-                            ProductType.TOMATOES,
-                            1200.0,
-                            200.0,
-                            "Spain",
-                            MarketIndicator.FALLING
-                    ),
-                    new ExportData(
-                            LocalDate.now(),
-                            ProductType.PEPPERS,
-                            1500.0,
-                            80.0,
-                            "Belgium",
-                            MarketIndicator.STABLE
-                    )
-            );
+            List<ExportData> sampleExports = DataGenerator.generateExports(100);
             System.out.println("✓ Created " + sampleExports.size() + " sample export records");
             System.out.println();
             System.out.println("Sample Export Data:");
