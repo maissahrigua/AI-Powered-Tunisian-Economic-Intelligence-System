@@ -7,8 +7,10 @@ import tn.isg.economics.model.*;
 import tn.isg.economics.service.EconomicIntelligenceService;
 import tn.isg.economics.exception.ModelException;
 import tn.isg.economics.exception.PredictionException;
-import tn.isg.economics.util.DataGenerator;
-
+import tn.isg.economics.util.*;
+import tn.isg.economics.util.DataExporter;
+import tn.isg.economics.util.CSVDataLoader;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +63,25 @@ public class Main {
             }
             System.out.println("─".repeat(80));
             System.out.println();
+            System.out.println("\n>>> Testing Statistics Calculator...\n");
+            PriceStatistics priceStats = StatisticsCalculator.getPriceStatistics(sampleExports);
+            System.out.println(priceStats.toFormattedString());
+            Map<ProductType, Double> avgByProduct =
+                    StatisticsCalculator.getAveragePriceByProduct(sampleExports);
+            System.out.println("Average Price by Product:");
+            avgByProduct.forEach((product, avg) ->
+                    System.out.printf("  %s: %.2f TND%n", product.getFrenchName(), avg)
+            );
+            Map<String, Double> volumeByCountry =
+                    StatisticsCalculator.getTotalVolumeByCountry(sampleExports);
+
+            System.out.println("\nTop 5 Countries by Volume:");
+            volumeByCountry.entrySet().stream()
+                    .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                    .limit(5)
+                    .forEach(entry ->
+                            System.out.printf("  %s: %.1f tons%n", entry.getKey(), entry.getValue())
+                    );
             System.out.println(">>> STEP 4: Generating AI Price Predictions...");
             System.out.println();
             List<PricePrediction> predictions = intelligenceService.analyzeExports(sampleExports);
@@ -147,6 +168,19 @@ public class Main {
             System.out.println("╔════════════════════════════════════════════════════════════╗");
             System.out.println("║            SYSTEM DEMONSTRATION COMPLETED! ✓               ║");
             System.out.println("╚════════════════════════════════════════════════════════════╝");
+            System.out.println(">>> Testing CSV Export/Import...");
+            System.out.println();
+            try {
+                DataExporter.exportToCSV(sampleExports, "data/generated_exports.csv");
+                DataExporter.exportPredictionsToCSV(predictions, "data/predictions.csv");
+                List<ExportData> loadedData = CSVDataLoader.loadFromCSV("data/generated_exports.csv");
+                System.out.println("✓ Loaded " + loadedData.size() + " records from CSV");
+                List<ExportData> preview = CSVDataLoader.previewCSV("data/generated_exports.csv", 5);
+                System.out.println("✓ Preview of first 5 records loaded");
+            } catch (IOException e) {
+                System.err.println("CSV Error: " + e.getMessage());
+            }
+            System.out.println();
         } catch (ModelException e) {
             System.err.println("❌ Model Error: " + e.getMessage());
             e.printStackTrace();
